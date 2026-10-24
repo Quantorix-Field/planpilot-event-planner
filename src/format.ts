@@ -31,3 +31,11 @@ export function dueLabel(dueDate: string, today: string): string {
   if (days === 1) return "Tomorrow";
   return `In ${days} days`;
 }
+
+/** Event countdown text, e.g. "52 days to go". */
+export function countdownLabel(days: number): string {
+  if (days < 0) return "This date has passed";
+  if (days === 0) return "Today is the day!";
+  if (days === 1) return "Tomorrow";
+  return `${days} days to go`;
+}
