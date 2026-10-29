@@ -1,6 +1,6 @@
 import type { MouseEvent, ReactNode } from "react";
 import { Link, NavLink } from "../router";
-
+import { MotionToggle } from "./MotionToggle";
 function skipToMain(event: MouseEvent<HTMLAnchorElement>) {
   event.preventDefault();
   document.getElementById("main")?.focus();
@@ -76,6 +76,9 @@ function SiteFooter() {
           Plans are drafted by Google Gemini and saved only in this browser. They are estimates, not
           quotes: always confirm prices with vendors.
         </p>
+                <div>
+          <MotionToggle />
+        </div>
       </div>
     </footer>
   );
