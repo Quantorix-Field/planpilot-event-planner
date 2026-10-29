@@ -1,0 +1,214 @@
+/* App shell (header, footer, page layout) and the first home sections. Loaded after styles.css. */
+#root {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  min-height: 100svh;
+}
+
+main {
+  flex: 1 0 auto;
+  padding-bottom: 0;
+}
+
+/* ---------- Header ---------- */
+.site-header {
+  padding: 0.5rem 0;
+}
+
+.header-inner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.25rem 1rem;
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-height: 48px;
+  color: #fff;
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.brand img {
+  display: block;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+}
+
+.nav-list,
+.footer-links {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.25rem 1.25rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.nav-link {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  color: #fff;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.nav-link::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 6px;
+  height: 2px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform var(--dur-2) var(--ease-out);
+}
+
+.nav-link[aria-current="page"] {
+  color: var(--marigold-light);
+}
+
+.nav-link[aria-current="page"]::after,
+.nav-link:focus-visible::after {
+  transform: scaleX(1);
+}
+
+@media (hover: hover) {
+  .nav-link:hover::after {
+    transform: scaleX(1);
+  }
+}
+
+.btn-small {
+  min-height: 44px;
+  padding: 0.3rem 1rem;
+}
+
+/* ---------- Footer ---------- */
+.site-footer {
+  padding: 1.5rem 0 2rem;
+  background: var(--night-900);
+  color: #e4e4ff;
+  font-size: 0.9rem;
+  text-align: left;
+}
+
+.footer-inner {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.footer-brand {
+  margin: 0;
+  color: #fff;
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+}
+
+.footer-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  color: #fff;
+}
+
+.footer-note {
+  margin: 0;
+}
+
+/* ---------- Page layout ---------- */
+.page {
+  padding-top: 1.5rem;
+  padding-bottom: 2rem;
+}
+
+.page h1 {
+  margin-bottom: 0.75rem;
+}
+
+.lead {
+  color: var(--muted);
+  font-size: 1.1rem;
+}
+
+.empty-state {
+  padding: 2rem 1rem;
+  text-align: center;
+}
+
+/* ---------- Home (first version) ---------- */
+.hero {
+  padding: 3rem 0 3.5rem;
+  background: linear-gradient(180deg, var(--night-700), var(--night-900));
+  color: #fff;
+}
+
+.hero h1 {
+  max-width: 18ch;
+}
+
+.hero-sub {
+  max-width: 32rem;
+  margin-bottom: 1.5rem;
+  color: #e4e4ff;
+  font-size: 1.15rem;
+}
+
+.section {
+  padding-top: 2.5rem;
+  padding-bottom: 2.5rem;
+  scroll-margin-top: 1rem;
+}
+
+.steps {
+  display: grid;
+  gap: 1rem;
+  margin: 1.25rem 0 1.5rem;
+  padding: 0;
+  list-style: none;
+}
+
+@media (min-width: 720px) {
+  .steps {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.step {
+  margin-top: 0;
+}
+
+.step-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  margin-bottom: 0.5rem;
+  border-radius: 50%;
+  background: var(--marigold);
+  color: var(--ink);
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+@media print {
+  .site-header,
+  .site-footer {
+    display: none !important;
+  }
+}
