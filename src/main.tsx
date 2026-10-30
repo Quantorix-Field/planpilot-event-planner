@@ -5,6 +5,7 @@ import { applyMotion, readMotion } from "./motion";
 import "./theme.css";
 import "./styles.css";
 import "./shell.css";
+import "./plans.css";
 
 const container = document.getElementById("root");
 if (!container) throw new Error("Root element #root was not found.");
