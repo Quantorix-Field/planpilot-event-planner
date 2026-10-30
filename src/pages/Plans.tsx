@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { todayIst } from "../../shared/schema";
 import { ConfirmDialog } from "../components/ConfirmDialog";
 import { PlanCard } from "../components/PlanCard";
+import { clearFlash, peekFlash } from "../flash";
 import { MAX_PLANS, deletePlan, listPlans, type StoredPlan } from "../planStore";
 import { planTitle } from "../planSummary";
 import { Link, usePageMeta } from "../router";
@@ -10,11 +11,15 @@ export default function Plans() {
   usePageMeta("My plans");
   const [plans, setPlans] = useState(() => listPlans());
   const [pending, setPending] = useState<StoredPlan | null>(null);
-  const [notice, setNotice] = useState("");
+  const [notice, setNotice] = useState(() => peekFlash());
   const headingRef = useRef<HTMLHeadingElement>(null);
   const focusHeading = useRef(false);
   const today = todayIst();
 
+    // The message left by another page (for example "Plan deleted.") is shown once, then cleared.
+  useEffect(() => {
+    clearFlash();
+  }, []);
   // After a delete the clicked button is gone, so focus goes to the page heading.
   useEffect(() => {
     if (!focusHeading.current) return;
