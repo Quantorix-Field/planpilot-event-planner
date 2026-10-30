@@ -1,0 +1,98 @@
+/* My plans list and the confirm dialog. */
+.notice {
+  min-height: 1.5rem;
+  margin: 0.5rem 0 0;
+  color: var(--night-700);
+  font-weight: 600;
+}
+
+.plan-list {
+  display: grid;
+  gap: 1rem;
+  margin: 1rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+@media (min-width: 720px) {
+  .plan-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.plan-card {
+  height: 100%;
+  margin-top: 0;
+}
+
+.plan-card-top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.plan-card-title {
+  margin: 0;
+  font-size: 1.3rem;
+}
+
+.plan-card-meta {
+  margin: 0.5rem 0 0.75rem;
+  color: var(--muted);
+}
+
+.plan-meter {
+  display: grid;
+  gap: 0.25rem;
+  margin-bottom: 0.75rem;
+  font-size: 0.9rem;
+}
+
+.plan-meter .progress {
+  height: 0.6rem;
+  margin: 0;
+}
+
+.plans-actions {
+  margin-top: 1.5rem;
+}
+
+.dialog {
+  width: min(92vw, 28rem);
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--ink);
+  box-shadow: 0 24px 48px -12px rgb(30 27 75 / 45%);
+}
+
+.dialog::backdrop {
+  background: rgb(30 27 75 / 72%);
+}
+
+.dialog-body {
+  padding: 1.5rem;
+}
+
+.dialog-title {
+  margin-bottom: 0.5rem;
+  font-size: 1.4rem;
+}
+
+.dialog-plan {
+  margin-bottom: 0.25rem;
+  font-weight: 700;
+}
+
+.dialog-text {
+  margin-bottom: 1rem;
+}
+
+@media print {
+  .dialog {
+    display: none !important;
+  }
+}
