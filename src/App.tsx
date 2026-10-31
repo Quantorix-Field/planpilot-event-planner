@@ -37,11 +37,11 @@ function renderRoute(route: Route) {
 }
 
 export default function App() {
-  const { pathname } = useLocation();
+  const { pathname, search } = useLocation();
 
   return (
     <Shell>
-      <ErrorBoundary key={pathname}>
+      <ErrorBoundary key={pathname + search}>
         <Suspense fallback={<PageLoading />}>{renderRoute(matchRoute(pathname))}</Suspense>
       </ErrorBoundary>
     </Shell>
