@@ -9,7 +9,8 @@ import {
 import {
   EVENT_TYPES,
   EVENT_TYPE_LABELS,
-  todayIst,
+    todayIst,
+  type EventType,
   type PlanRequest,
 } from "../../shared/schema";
 import {
@@ -23,7 +24,11 @@ import {
 } from "../formUtils";
 
 interface PlanFormProps {
-  initial: PlanRequest | null;
+    initial: PlanRequest | null;
+  /** Event type to preselect on a blank form (used by "/plan?type=wedding"). */
+  initialType?: EventType;
+  /** Text of the submit button. */
+  submitLabel?: string;
   busy: boolean;
   serverErrors: FormErrors;
   onSubmit: (request: PlanRequest) => void;
@@ -70,9 +75,16 @@ function Field({ name, label, hint, error, className, children }: FieldProps) {
   );
 }
 
-export function PlanForm({ initial, busy, serverErrors, onSubmit }: PlanFormProps) {
+export function PlanForm({
+  initial,
+  initialType,
+  submitLabel = "Create my plan",
+  busy,
+  serverErrors,
+  onSubmit,
+}: PlanFormProps) {
   const [values, setValues] = useState<FormValues>(
-    initial ? valuesFromRequest(initial) : EMPTY_VALUES,
+    initial ? valuesFromRequest(initial) : { ...EMPTY_VALUES, eventType: initialType ?? "" },
   );
   const [errors, setErrors] = useState<FormErrors>({});
   const refs = useRef<Partial<Record<FieldName, HTMLElement | null>>>({});
@@ -233,7 +245,7 @@ export function PlanForm({ initial, busy, serverErrors, onSubmit }: PlanFormProp
         <div className="field full">
           <div className="btn-row">
             <button type="submit" className="btn btn-primary" disabled={busy}>
-              {busy ? "Planning…" : "Create my plan"}
+              {busy ? "Planning…" : submitLabel}
             </button>
           </div>
         </div>
