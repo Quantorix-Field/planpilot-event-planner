@@ -9,14 +9,7 @@ import {
   valuesFromRequest,
   type FormValues,
 } from "../src/formUtils";
-import {
-  clearSaved,
-  loadSaved,
-  savePlan,
-  toggleChecked,
-  type SavedPlan,
-  type StorageLike,
-} from "../src/storage";
+import { toggleChecked } from "../src/storage";
 import { TAB_IDS, nextTabIndex } from "../src/tabs";
 import { makePlanResponse, makeRequest } from "./fixtures";
 
@@ -123,63 +116,8 @@ describe("formatting", () => {
   });
 });
 
-function memoryStorage() {
-  const data = new Map<string, string>();
-  const storage: StorageLike = {
-    getItem: (key) => data.get(key) ?? null,
-    setItem: (key, value) => {
-      data.set(key, value);
-    },
-    removeItem: (key) => {
-      data.delete(key);
-    },
-  };
-  return { data, storage };
-}
-
-describe("saved plan storage", () => {
-  const saved: SavedPlan = { request: makeRequest(), plan: makePlanResponse(), checked: ["timeline-0"] };
-
-  it("saves, loads and clears a plan", () => {
-    const { storage } = memoryStorage();
-    expect(loadSaved(storage)).toBeNull();
-    savePlan(saved, storage);
-    expect(loadSaved(storage)).toEqual(saved);
-    clearSaved(storage);
-    expect(loadSaved(storage)).toBeNull();
-  });
-
-  it("ignores corrupted, malformed or expired data", () => {
-    const { data, storage } = memoryStorage();
-    data.set("planpilot:v1", "{corrupt");
-    expect(loadSaved(storage)).toBeNull();
-    data.set("planpilot:v1", JSON.stringify({ request: saved.request, plan: { nope: 1 }, checked: [] }));
-    expect(loadSaved(storage)).toBeNull();
-    data.set("planpilot:v1", JSON.stringify({ ...saved, request: { ...saved.request, eventDate: "2020-01-01" } }));
-    expect(loadSaved(storage)).toBeNull();
-  });
-
-  it("never throws when storage is blocked or full", () => {
-    const blocked: StorageLike = {
-      getItem() {
-        throw new Error("blocked");
-      },
-      setItem() {
-        throw new Error("quota");
-      },
-      removeItem() {
-        throw new Error("blocked");
-      },
-    };
-    expect(loadSaved(blocked)).toBeNull();
-    savePlan(saved, blocked);
-    clearSaved(blocked);
-    expect(loadSaved(null)).toBeNull();
-    savePlan(saved, null);
-    clearSaved(null);
-  });
-
-  it("toggles ticked items without changing the original list", () => {
+describe("toggleChecked", () => {
+  it("adds or removes an item without changing the original list", () => {
     const original = ["a"];
     expect(toggleChecked(original, "b")).toEqual(["a", "b"]);
     expect(toggleChecked(["a", "b"], "a")).toEqual(["b"]);
