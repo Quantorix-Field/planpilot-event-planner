@@ -6,6 +6,7 @@ import { matchRoute, type Route } from "./routes";
 
 const Home = lazy(() => import("./pages/Home"));
 const NewPlan = lazy(() => import("./pages/NewPlan"));
+const PlanDetail = lazy(() => import("./pages/PlanDetail"));
 const Plans = lazy(() => import("./pages/Plans"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
@@ -28,9 +29,8 @@ function renderRoute(route: Route) {
       return <NewPlan />;
     case "plans":
       return <Plans />;
-    case "planDetail":
-      // The real plan page arrives with storage v2; until then every id is unknown.
-      return <NotFound kind="plan" />;
+        case "planDetail":
+      return <PlanDetail id={route.id} />;
     case "notFound":
       return <NotFound kind="page" />;
   }
