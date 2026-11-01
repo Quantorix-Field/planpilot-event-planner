@@ -35,7 +35,8 @@ Rules:
 - timeline: 8 to 14 tasks. daysBefore is how many days before the event the task should be finished, from 0 up to daysUntilEvent. Spread tasks realistically. If the event is close, focus on urgent tasks.
 - vendors: 6 to 10 vendor types for this event. Use must-book for anything with limited availability. estimatedCostInr is a realistic estimate for the city and guest count. tip is one practical booking or negotiation tip.
 - ideas: 4 to 6 ideas tailored to the notes, city, season and event type. Each has a short title and a one or two sentence description.
-- Plain text only: no markdown and no emojis. Keep estimates inside the total budget.`;
+- Honour "traditions" (ceremonies or customs to include in the timeline and ideas), "foodPreference" (catering and vendor choices) and "styles" (decor and ideas). An empty list or "no preference" means free choice.
+- Plain text only: no markdown and no emojis.
 
 const str = { type: "STRING" } as const;
 
@@ -105,7 +106,10 @@ export function buildUserPrompt(request: PlanRequest, today: string): string {
     totalBudgetInr: request.budgetInr,
     budgetPerGuestInr: Math.round(request.budgetInr / request.guestCount),
     city: request.city,
-    notes: request.vibe === "" ? "none" : request.vibe,
+        notes: request.vibe === "" ? "none" : request.vibe,
+    traditions: request.traditions ?? [],
+    foodPreference: request.food ?? "no preference",
+    styles: request.styles ?? [],
   };
   return `Plan this event.\n${JSON.stringify(details, null, 2)}`;
 }
