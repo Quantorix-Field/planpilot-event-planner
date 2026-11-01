@@ -47,7 +47,10 @@ function SiteFooter() {
   return (
     <footer className="site-footer on-dark no-print">
       <div className="container-wide footer-inner">
-        <p className="footer-brand">Plan the joy. We'll carry the list.</p>
+                <p className="footer-brand">
+          <img src="/logo-plane-white.png" alt="" width="32" height="25" />
+          <span>Plan the joy. We'll carry the list.</span>
+        </p>
         <nav aria-label="Footer">
           <ul className="footer-links">
             <li>
