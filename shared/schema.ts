@@ -1,4 +1,11 @@
 import { z } from "zod";
+import {
+  FOOD_PREFERENCES,
+  MAX_STYLES,
+  MAX_TRADITIONS,
+  STYLES,
+  TRADITIONS,
+} from "./formOptions.js";
 
 export const EVENT_TYPES = ["wedding", "birthday", "community"] as const;
 export type EventType = (typeof EVENT_TYPES)[number];
@@ -55,7 +62,19 @@ export const planRequestSchema = z.object({
     .trim()
     .min(2, "Enter a city.")
     .max(60, "City name is too long."),
-  vibe: z.string().trim().max(500, "Keep notes under 500 characters.").default(""),
+    vibe: z.string().trim().max(500, "Keep notes under 500 characters.").default(""),
+  /** Optional chips from the second form step. Each value must come from a fixed list. */
+  traditions: z
+    .array(z.enum(TRADITIONS))
+    .max(MAX_TRADITIONS, `Choose up to ${MAX_TRADITIONS} traditions.`)
+    .optional(),
+  food: z
+    .enum(FOOD_PREFERENCES, { errorMap: () => ({ message: "Choose one of the listed options." }) })
+    .optional(),
+  styles: z
+    .array(z.enum(STYLES))
+    .max(MAX_STYLES, `Choose up to ${MAX_STYLES} styles.`)
+    .optional(),
 });
 export type PlanRequest = z.infer<typeof planRequestSchema>;
 
