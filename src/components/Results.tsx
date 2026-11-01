@@ -48,6 +48,15 @@ export function Results({ request, plan, checked, onToggle, onEdit }: ResultsPro
           {request.guestCount} guests · {request.city}
         </p>
         <span className="badge-days">{countdownLabel(daysLeft)}</span>
+                {plan.source === "starter" && (
+          <div className="starter-note" role="note">
+            <strong>Starter plan</strong>
+            <span>
+              The AI planner could not be reached, so this plan uses standard proportions for your
+              event. Choose Edit details and build the plan again for a tailored one.
+            </span>
+          </div>
+        )}
         <p>{plan.summary}</p>
         <div className="btn-row no-print">
           <button type="button" className="btn btn-secondary" onClick={() => window.print()}>
