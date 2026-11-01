@@ -1,0 +1,611 @@
+/* Home page scenes. Loaded after shell.css, so these rules refine the first home styles there. */
+
+/* ---------- Donut colours: each is at least 3:1 against white and against the ring track ---------- */
+.tone-0 { --tone: #4338ca; }
+.tone-1 { --tone: #b45309; }
+.tone-2 { --tone: #0f766e; }
+.tone-3 { --tone: #be185d; }
+.tone-4 { --tone: #4d7c0f; }
+.tone-5 { --tone: #6d28d9; }
+
+/* ---------- Scene 1: hero ---------- */
+.hero {
+  position: relative;
+  overflow: hidden;
+  padding: 2.5rem 0 3rem;
+}
+
+/* A faded kolam dot grid behind the plane. */
+.hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(rgb(165 180 252 / 45%) 1.5px, transparent 1.6px);
+  background-size: 26px 26px;
+  mask-image: radial-gradient(ellipse at 75% 45%, #000 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.hero-grid {
+  position: relative;
+  display: grid;
+  gap: 1.5rem;
+  align-items: center;
+}
+
+.eyebrow {
+  margin: 0 0 0.5rem;
+  color: var(--marigold-light);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.hero-facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 1.5rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.hero-facts li {
+  padding: 0.3rem 0.75rem;
+  border: 1px solid rgb(255 255 255 / 55%);
+  border-radius: 999px;
+  color: #e4e4ff;
+  font-size: 0.9rem;
+}
+
+.hero-art {
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-height: 11rem;
+}
+
+.hero-glow {
+  position: absolute;
+  width: min(70vw, 18rem);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgb(251 191 36 / 28%), transparent 65%);
+}
+
+.hero-plane {
+  position: relative;
+  width: min(58vw, 16rem);
+  height: auto;
+  animation: hero-float 7s ease-in-out infinite;
+}
+
+.hero-petal {
+  position: absolute;
+  left: calc(14% + var(--i) * 11%);
+  bottom: calc(10% + var(--i) * 4%);
+  width: 0.9rem;
+  height: 0.5rem;
+  border-radius: 100% 0;
+  background: var(--marigold);
+  opacity: 0;
+  animation: petal-drift 6s ease-in-out infinite;
+  animation-delay: calc(var(--i) * 0.9s);
+}
+
+@keyframes hero-float {
+  50% {
+    transform: translate(0.4rem, -0.7rem) rotate(-1.5deg);
+  }
+}
+
+@keyframes petal-drift {
+  0% {
+    opacity: 0;
+    transform: translate(0, 0) rotate(0deg);
+  }
+  20% {
+    opacity: 0.9;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(2.5rem, -3.5rem) rotate(120deg);
+  }
+}
+
+@media (min-width: 860px) {
+  .hero {
+    padding: 4rem 0 4.5rem;
+  }
+
+  .hero-grid {
+    grid-template-columns: 1.1fr 0.9fr;
+  }
+}
+
+/* A garland of marigolds hangs under the hero. */
+.garland {
+  height: 28px;
+  background-color: var(--cream);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='28' viewBox='0 0 48 28'%3E%3Cpath d='M0 6Q12 22 24 6Q36 22 48 6' fill='none' stroke='%234338ca' stroke-width='1.5'/%3E%3Ccircle cx='12' cy='14' r='5' fill='%23f59e0b'/%3E%3Ccircle cx='12' cy='14' r='2' fill='%23e8590c'/%3E%3Ccircle cx='36' cy='14' r='5' fill='%23fbbf24'/%3E%3Ccircle cx='36' cy='14' r='2' fill='%23e8590c'/%3E%3C/svg%3E");
+  background-repeat: repeat-x;
+  background-position: center top;
+}
+
+/* ---------- Scene 2: how it works ---------- */
+.how-grid {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.how-plane {
+  display: block;
+  width: 5rem;
+  height: auto;
+  margin-bottom: 0.5rem;
+}
+
+.steps.steps-stack {
+  grid-template-columns: minmax(0, 1fr);
+  margin: 0;
+}
+
+.steps-stack .step {
+  position: relative;
+  display: grid;
+  grid-template-columns: 2.5rem minmax(0, 1fr);
+  column-gap: 1rem;
+  align-content: start;
+  align-items: start;
+}
+
+.steps-stack .step-num {
+  grid-row: 1 / span 2;
+  margin: 0;
+}
+
+.steps-stack .step h3,
+.steps-stack .step p {
+  grid-column: 2;
+  margin-bottom: 0.25rem;
+}
+
+/* A marigold thread joins one step number to the next. */
+.steps-stack .step:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  left: calc(1rem + 1.25rem - 1.5px);
+  top: 3.75rem;
+  width: 3px;
+  height: calc(100% - 1.5rem);
+  border-radius: 2px;
+  background: var(--marigold);
+  transform-origin: top;
+}
+
+@media (min-width: 900px) {
+  .how-grid {
+    grid-template-columns: 0.8fr 1.2fr;
+    gap: 3rem;
+    align-items: start;
+  }
+
+  /* The heading stays in view while the steps scroll past. */
+  .how-aside {
+    position: sticky;
+    top: 1.5rem;
+  }
+
+  .steps-stack .step {
+    min-height: 10rem;
+  }
+}
+
+/* ---------- Scene 3: example plan ---------- */
+.example {
+  background: var(--cream-deep);
+}
+
+.example-card {
+  padding: 1.25rem 1rem 1.5rem;
+}
+
+.example-tag {
+  display: inline-block;
+  margin: 0 0 0.5rem;
+  padding: 0.2rem 0.65rem;
+  border-radius: 999px;
+  background: var(--indigo-soft);
+  color: var(--night-700);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.example-facts {
+  color: var(--muted);
+}
+
+.example-grid {
+  display: grid;
+  gap: 1.5rem;
+  margin-top: 1rem;
+}
+
+.example-side h4 {
+  margin: 0 0 0.5rem;
+  color: var(--night-700);
+  font-size: 1rem;
+}
+
+.example-side h4:not(:first-child) {
+  margin-top: 1.25rem;
+}
+
+.example-timeline,
+.example-vendors {
+  display: grid;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.example-timeline li {
+  display: grid;
+  padding-left: 0.75rem;
+  border-left: 3px solid var(--marigold);
+}
+
+.example-when {
+  color: var(--muted);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+@media (min-width: 800px) {
+  .example-card {
+    padding: 1.75rem;
+  }
+
+  .example-grid {
+    grid-template-columns: 1fr 1fr;
+    align-items: start;
+  }
+}
+
+/* Donut chart */
+.donut {
+  display: grid;
+  gap: 0.75rem;
+  margin: 0;
+}
+
+.donut-title {
+  color: var(--night-700);
+  font-weight: 700;
+}
+
+.donut-ring {
+  position: relative;
+  width: min(60vw, 13rem);
+  aspect-ratio: 1;
+  margin: 0 auto;
+  view-timeline: --ring block;
+}
+
+.donut-ring svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.donut-track,
+.donut-arc {
+  fill: none;
+  stroke-width: 6;
+}
+
+.donut-track {
+  stroke: var(--track);
+}
+
+.donut-arc {
+  stroke: var(--tone);
+}
+
+.donut-centre {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  margin: 0;
+  padding: 0 28%;
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  font-weight: 700;
+  line-height: 1.2;
+  text-align: center;
+}
+
+.donut-legend {
+  display: grid;
+  gap: 0.4rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.donut-legend li {
+  display: grid;
+  grid-template-columns: auto 1fr auto auto;
+  gap: 0.5rem;
+  align-items: center;
+  font-size: 0.95rem;
+}
+
+.swatch {
+  width: 0.9rem;
+  height: 0.9rem;
+  border-radius: 3px;
+  background: var(--tone);
+}
+
+.donut-share {
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.donut-amount {
+  min-width: 6.5ch;
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  text-align: right;
+}
+
+/* ---------- Scene 4: event types ---------- */
+.event-grid {
+  display: grid;
+  gap: 1rem;
+  margin: 1.25rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.event-card {
+  display: block;
+  height: 100%;
+  margin-top: 0;
+  color: var(--ink);
+  text-decoration: none;
+  transition:
+    transform var(--dur-2) var(--ease-out),
+    box-shadow var(--dur-2) var(--ease-out);
+}
+
+.event-card h3 {
+  margin-top: 0.5rem;
+  color: var(--night-700);
+}
+
+.event-card p {
+  color: var(--muted);
+}
+
+.event-icon {
+  width: 3rem;
+  height: 3rem;
+  fill: none;
+  stroke: var(--indigo);
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.event-icon .icon-fill {
+  fill: var(--marigold);
+  stroke: var(--marigold);
+}
+
+.event-go {
+  color: var(--indigo);
+  font-weight: 700;
+}
+
+@media (min-width: 720px) {
+  .event-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (hover: hover) {
+  .event-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 18px 30px -16px rgb(30 27 75 / 40%);
+  }
+}
+
+/* ---------- Scene 5: honest by design ---------- */
+.honest {
+  background: linear-gradient(180deg, var(--night-700), var(--night-900));
+  color: #fff;
+}
+
+.honest .lead {
+  color: #e4e4ff;
+}
+
+.trust-grid {
+  display: grid;
+  gap: 1rem;
+  margin: 1.25rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.trust-card {
+  padding: 1.25rem 1rem;
+  border: 1px solid rgb(255 255 255 / 20%);
+  border-top: 3px solid var(--marigold);
+  border-radius: var(--radius);
+  background: rgb(255 255 255 / 7%);
+}
+
+.trust-card h3 {
+  color: var(--marigold-light);
+}
+
+.trust-card p {
+  margin: 0;
+  color: #e4e4ff;
+}
+
+@media (min-width: 720px) {
+  .trust-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* ---------- Scene 6: made for India ---------- */
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin: 1.25rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border: 2px solid var(--control-border);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--night-700);
+  font-weight: 600;
+}
+
+.chip::before {
+  content: "";
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: var(--marigold);
+}
+
+/* ---------- Scene 7: finale ---------- */
+.finale {
+  padding: 3.5rem 0 4rem;
+  background: linear-gradient(180deg, var(--night-700), var(--night-900));
+  color: #fff;
+  text-align: center;
+}
+
+.finale .hero-sub {
+  margin-right: auto;
+  margin-left: auto;
+}
+
+.lamps {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin: 0 0 1.25rem;
+  padding: 0;
+  list-style: none;
+}
+
+.lamp svg {
+  display: block;
+  width: 2.25rem;
+  height: auto;
+}
+
+.lamp-bowl {
+  fill: var(--marigold);
+}
+
+.lamp-flame {
+  fill: #fde68a;
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  animation: flicker 2.4s ease-in-out infinite;
+  animation-delay: calc(var(--i) * -0.5s);
+}
+
+/* The footer logo sits beside the tagline. */
+.footer-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.footer-brand img {
+  display: block;
+  width: 2rem;
+  height: auto;
+}
+
+/* ---------- Scroll reveals: native CSS, only where the browser supports it ---------- */
+@keyframes reveal-up {
+  from {
+    opacity: 0;
+    transform: translateY(1.25rem);
+  }
+}
+
+@keyframes thread-grow {
+  from {
+    transform: scaleY(0);
+  }
+}
+
+@keyframes donut-draw {
+  from {
+    stroke-dasharray: 0 100;
+  }
+}
+
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    :root:not([data-motion="off"]) .how-aside,
+    :root:not([data-motion="off"]) .steps-stack .step,
+    :root:not([data-motion="off"]) .example-card,
+    :root:not([data-motion="off"]) .event-card,
+    :root:not([data-motion="off"]) .trust-card,
+    :root:not([data-motion="off"]) .chip,
+    :root:not([data-motion="off"]) .finale-inner {
+      animation: reveal-up linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry calc(55% + var(--i, 0) * 4%);
+    }
+
+    :root:not([data-motion="off"]) .steps-stack .step {
+      view-timeline: --step block;
+    }
+
+    :root:not([data-motion="off"]) .steps-stack .step:not(:last-child)::after {
+      animation: thread-grow linear both;
+      animation-timeline: --step;
+      animation-range: entry 40% cover 60%;
+    }
+
+    :root:not([data-motion="off"]) .donut-arc {
+      animation: donut-draw linear both;
+      animation-timeline: --ring;
+      animation-range: entry 20% cover 45%;
+    }
+  }
+}
+
+@media print {
+  .hero-art,
+  .garland {
+    display: none;
+  }
+}
