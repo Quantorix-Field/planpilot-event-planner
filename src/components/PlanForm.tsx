@@ -244,7 +244,7 @@ export function PlanForm({
 
         <div className="field full">
           <div className="btn-row">
-            <button type="submit" className="btn btn-primary" disabled={busy}>
+            <button id="plan-submit" type="submit" className="btn btn-primary" disabled={busy}>
               {busy ? "Planning…" : submitLabel}
             </button>
           </div>
