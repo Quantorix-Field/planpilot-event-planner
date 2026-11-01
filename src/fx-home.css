@@ -1,0 +1,651 @@
+/* Home page effects. Loaded after home.css. Decoration only: nothing here hides content,
+   and every animation stops with the pause toggle or the system reduced-motion setting. */
+
+@property --angle {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+
+/* ---------- Hero ---------- */
+.hero {
+  background:
+    radial-gradient(ellipse at 78% 30%, rgb(99 102 241 / 38%), transparent 55%),
+    radial-gradient(ellipse at 8% 95%, rgb(245 158 11 / 14%), transparent 50%),
+    linear-gradient(180deg, var(--night-700), var(--night-900));
+  background-size: 150% 150%, 150% 150%, auto;
+  animation: aurora 20s ease-in-out infinite alternate;
+}
+
+.word {
+  display: inline-block;
+  animation: word-rise 0.9s var(--ease-out) backwards;
+  animation-delay: calc(var(--i) * 110ms + 120ms);
+}
+
+.word-spark {
+  background: linear-gradient(100deg, #fde68a 0%, #f59e0b 35%, #fff7d6 50%, #f59e0b 65%, #fde68a 100%);
+  background-size: 220% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: #fde68a;
+  -webkit-text-fill-color: transparent;
+  animation-name: word-rise, text-shimmer;
+  animation-duration: 0.9s, 4s;
+  animation-timing-function: var(--ease-out), ease-in-out;
+  animation-delay: calc(var(--i) * 110ms + 120ms), 1.6s;
+  animation-iteration-count: 1, infinite;
+  animation-direction: normal, alternate;
+  animation-fill-mode: backwards, none;
+}
+
+.hero-art {
+  min-height: 15rem;
+}
+
+.hero-mandala {
+  position: absolute;
+  width: min(92vw, 27rem);
+  color: rgb(165 180 252 / 36%);
+}
+
+.mandala-a,
+.mandala-b {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.mandala-a {
+  animation: turn 110s linear infinite;
+}
+
+.mandala-b {
+  animation: turn 80s linear infinite reverse;
+}
+
+.hero-plane {
+  filter: drop-shadow(0 0 26px rgb(251 191 36 / 38%));
+}
+
+.hero-trail {
+  position: absolute;
+  width: min(58vw, 16rem);
+  height: auto;
+  overflow: visible;
+  fill: none;
+  pointer-events: none;
+}
+
+.hero-trail path {
+  stroke: var(--marigold-light);
+  stroke-width: 3.2;
+  stroke-linecap: round;
+  stroke-dasharray: 0.1 11;
+  animation: trail-run 2.6s linear infinite;
+}
+
+.spark {
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  width: calc(1rem * var(--s));
+  aspect-ratio: 1;
+  background: #fde68a;
+  clip-path: polygon(50% 0, 60% 38%, 100% 50%, 60% 62%, 50% 100%, 40% 62%, 0 50%, 40% 38%);
+  opacity: 0;
+  animation: twinkle 3.6s ease-in-out infinite;
+  animation-delay: calc(var(--i) * -0.55s);
+}
+
+.hero-petal {
+  animation-duration: 7s;
+}
+
+/* Scroll-linked drift: the art floats up slower than the page. Native CSS, no scripts. */
+@supports (animation-timeline: scroll()) {
+  @media (prefers-reduced-motion: no-preference) {
+    :root:not([data-motion="off"]) .hero-art {
+      animation: art-drift linear both;
+      animation-timeline: scroll(root);
+      animation-range: 0 75vh;
+    }
+  }
+}
+
+/* ---------- Garland ---------- */
+.garland {
+  --w: clamp(150px, 18vw, 220px);
+  position: relative;
+  z-index: 2;
+  display: flex;
+  justify-content: center;
+  height: calc(var(--w) * 0.42);
+  overflow: hidden;
+  background: linear-gradient(var(--night-900) 0 calc(var(--w) * 0.025), var(--cream) calc(var(--w) * 0.025));
+}
+
+.garland-row {
+  display: flex;
+  flex: none;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  filter: drop-shadow(0 6px 5px rgb(120 53 15 / 30%));
+}
+
+.garland-swag {
+  flex: 0 0 var(--w);
+  width: var(--w);
+}
+
+.garland-swag svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.garland-defs {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+}
+
+.garland-sway {
+  transform-box: fill-box;
+  transform-origin: 50% 0;
+  animation: swag-sway 6.5s ease-in-out infinite;
+  animation-delay: calc(var(--i) * -0.8s);
+}
+
+.garland-tassel {
+  transform-box: fill-box;
+  transform-origin: 50% 0;
+  animation: tassel-swing 4.4s ease-in-out infinite;
+  animation-delay: calc(var(--i, 0) * -0.6s);
+}
+
+/* ---------- Section headings draw a marigold line ---------- */
+.section h2::after,
+.finale h2::after {
+  content: "";
+  display: block;
+  width: 3.5rem;
+  height: 4px;
+  margin-top: 0.55rem;
+  border-radius: 2px;
+  background: linear-gradient(90deg, var(--marigold), var(--flame));
+  transform-origin: left center;
+}
+
+.finale h2::after {
+  margin-right: auto;
+  margin-left: auto;
+}
+
+/* ---------- How it works ---------- */
+.step-num {
+  box-shadow: 0 0 0 0 rgb(245 158 11 / 50%);
+  animation: ring-pulse 3.2s ease-out infinite;
+}
+
+.steps-stack .step {
+  transition:
+    transform var(--dur-2) var(--ease-out),
+    box-shadow var(--dur-2) var(--ease-out);
+}
+
+@media (hover: hover) {
+  .steps-stack .step:hover {
+    transform: translateX(6px);
+    box-shadow: 0 18px 30px -18px rgb(30 27 75 / 45%);
+  }
+}
+
+/* ---------- Example plan ---------- */
+.example-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.example-card::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: 5px;
+  background: linear-gradient(90deg, var(--indigo), var(--marigold), var(--flame), var(--indigo));
+  background-size: 200% 100%;
+  animation: sweep 9s linear infinite;
+}
+
+.example-tag {
+  background: linear-gradient(100deg, var(--indigo-soft) 30%, #fff 50%, var(--indigo-soft) 70%);
+  background-size: 220% 100%;
+  animation: text-shimmer 5s ease-in-out infinite alternate;
+}
+
+.example-timeline li:nth-child(2),
+.donut-legend li:nth-child(2) {
+  --i: 1;
+}
+
+.example-timeline li:nth-child(3),
+.donut-legend li:nth-child(3) {
+  --i: 2;
+}
+
+.example-timeline li:nth-child(4),
+.donut-legend li:nth-child(4) {
+  --i: 3;
+}
+
+.donut-legend li:nth-child(5) {
+  --i: 4;
+}
+
+.donut-ring::before {
+  content: "";
+  position: absolute;
+  inset: -6%;
+  border-radius: 50%;
+  background: conic-gradient(from var(--angle), transparent 0 72%, rgb(245 158 11 / 38%) 88%, transparent);
+  filter: blur(8px);
+  animation: spin-angle 7s linear infinite;
+}
+
+.donut-ring svg {
+  position: relative;
+}
+
+.donut-arc {
+  transition: stroke-width var(--dur-2) var(--ease-out);
+}
+
+.donut-ring:hover .donut-arc {
+  stroke-width: 6.8;
+}
+
+/* ---------- Event cards ---------- */
+.event-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.event-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(115deg, transparent 35%, rgb(251 191 36 / 26%) 50%, transparent 65%);
+  transform: translateX(-120%);
+  transition: transform 0.9s var(--ease-out);
+  pointer-events: none;
+}
+
+.event-icon {
+  transition: transform var(--dur-3) var(--ease-out);
+}
+
+@media (hover: hover) {
+  .event-card:hover::after {
+    transform: translateX(120%);
+  }
+
+  .event-card:hover .event-icon {
+    transform: rotate(-8deg) scale(1.14);
+  }
+}
+
+/* ---------- Honest by design ---------- */
+.honest {
+  position: relative;
+  overflow: hidden;
+}
+
+.honest::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    radial-gradient(circle at 8% 18%, #fff 0 1.3px, transparent 2px),
+    radial-gradient(circle at 21% 72%, #fff 0 1px, transparent 1.8px),
+    radial-gradient(circle at 34% 30%, #fde68a 0 1.4px, transparent 2px),
+    radial-gradient(circle at 47% 88%, #fff 0 1px, transparent 1.8px),
+    radial-gradient(circle at 59% 14%, #fff 0 1.3px, transparent 2px),
+    radial-gradient(circle at 71% 64%, #fde68a 0 1.2px, transparent 2px),
+    radial-gradient(circle at 83% 26%, #fff 0 1px, transparent 1.8px),
+    radial-gradient(circle at 93% 82%, #fff 0 1.3px, transparent 2px),
+    radial-gradient(circle at 15% 92%, #fde68a 0 1px, transparent 1.8px),
+    radial-gradient(circle at 96% 8%, #fff 0 1.2px, transparent 2px);
+  opacity: 0.35;
+  animation: field-twinkle 4.5s ease-in-out infinite alternate;
+}
+
+.honest .container-wide {
+  position: relative;
+}
+
+.trust-card {
+  position: relative;
+  transition: transform var(--dur-2) var(--ease-out);
+}
+
+.trust-card::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  padding: 2px;
+  border-radius: inherit;
+  background: conic-gradient(from var(--angle), transparent 0 68%, var(--marigold-light) 84%, transparent 100%);
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask:
+    linear-gradient(#000 0 0) content-box exclude,
+    linear-gradient(#000 0 0);
+  animation: spin-angle 6s linear infinite;
+  animation-delay: calc(var(--i) * -1.4s);
+  pointer-events: none;
+}
+
+@media (hover: hover) {
+  .trust-card:hover {
+    transform: translateY(-4px);
+  }
+}
+
+/* ---------- Made for India ---------- */
+.chip {
+  transition:
+    transform var(--dur-2) var(--ease-out),
+    border-color var(--dur-2) var(--ease-out),
+    background-color var(--dur-2) var(--ease-out);
+}
+
+.chip::before {
+  box-shadow: 0 0 0 0 rgb(245 158 11 / 55%);
+  animation: ring-pulse 2.8s ease-out infinite;
+  animation-delay: calc(var(--i) * -0.35s);
+}
+
+@media (hover: hover) {
+  .chip:hover {
+    transform: translateY(-3px) rotate(-1deg);
+    border-color: var(--marigold);
+    background: var(--cream-deep);
+  }
+}
+
+/* ---------- Finale ---------- */
+.finale {
+  position: relative;
+  overflow: hidden;
+}
+
+.finale::before {
+  content: "";
+  position: absolute;
+  top: 40%;
+  left: 50%;
+  width: min(130vw, 60rem);
+  aspect-ratio: 1;
+  translate: -50% -50%;
+  background: radial-gradient(circle, rgb(251 191 36 / 24%), transparent 60%);
+  animation: breathe 6s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.finale-mandala {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: min(160vw, 58rem);
+  translate: -50% -50%;
+  color: rgb(165 180 252 / 17%);
+  pointer-events: none;
+}
+
+.finale-inner {
+  position: relative;
+  z-index: 1;
+}
+
+.finale-embers {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.ember {
+  position: absolute;
+  bottom: -1rem;
+  left: var(--x);
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: 50%;
+  background: #fbbf24;
+  opacity: 0;
+  animation: ember-rise 8s linear infinite;
+  animation-delay: calc(var(--i) * -0.9s);
+}
+
+.lamp {
+  position: relative;
+}
+
+.lamp::after {
+  content: "";
+  position: absolute;
+  top: 38%;
+  left: 50%;
+  z-index: -1;
+  width: 4.5rem;
+  aspect-ratio: 1;
+  translate: -50% -50%;
+  background: radial-gradient(circle, rgb(251 191 36 / 38%), transparent 65%);
+  animation: breathe 3.2s ease-in-out infinite;
+  animation-delay: calc(var(--i) * -0.6s);
+}
+
+.finale .btn-primary {
+  animation: cta-pulse 2.8s ease-out infinite;
+}
+
+/* ---------- Footer logo ---------- */
+.footer-brand img {
+  animation: logo-float 7s ease-in-out infinite;
+}
+
+/* ---------- Scroll reveals for the new details ---------- */
+@keyframes line-draw {
+  from {
+    transform: scaleX(0);
+  }
+}
+
+@keyframes reveal-left {
+  from {
+    opacity: 0;
+    transform: translateX(-1rem);
+  }
+}
+
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    :root:not([data-motion="off"]) .section h2::after,
+    :root:not([data-motion="off"]) .finale h2::after {
+      animation: line-draw linear both;
+      animation-timeline: view();
+      animation-range: entry 10% entry 80%;
+    }
+
+    :root:not([data-motion="off"]) .example-timeline li,
+    :root:not([data-motion="off"]) .donut-legend li {
+      animation: reveal-left linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry calc(60% + var(--i, 0) * 6%);
+    }
+  }
+}
+
+/* ---------- Keyframes ---------- */
+@keyframes aurora {
+  from {
+    background-position: 0% 0%, 100% 100%, 0 0;
+  }
+  to {
+    background-position: 100% 60%, 0% 40%, 0 0;
+  }
+}
+
+@keyframes word-rise {
+  from {
+    opacity: 0;
+    transform: translateY(0.6em);
+    filter: blur(6px);
+  }
+}
+
+@keyframes text-shimmer {
+  to {
+    background-position: 100% 0;
+  }
+}
+
+@keyframes turn {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes trail-run {
+  to {
+    stroke-dashoffset: -69;
+  }
+}
+
+@keyframes twinkle {
+  0%,
+  100% {
+    opacity: 0;
+    transform: scale(0.3) rotate(0deg);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1) rotate(45deg);
+  }
+}
+
+@keyframes art-drift {
+  to {
+    opacity: 0.45;
+    transform: translateY(3.5rem) scale(0.9);
+  }
+}
+
+@keyframes swag-sway {
+  0%,
+  100% {
+    transform: rotate(-0.7deg);
+  }
+  50% {
+    transform: rotate(0.8deg) translateY(1px);
+  }
+}
+
+@keyframes tassel-swing {
+  0%,
+  100% {
+    transform: rotate(-4deg);
+  }
+  50% {
+    transform: rotate(4deg);
+  }
+}
+
+@keyframes ring-pulse {
+  70%,
+  100% {
+    box-shadow: 0 0 0 0.7rem rgb(245 158 11 / 0%);
+  }
+}
+
+@keyframes sweep {
+  to {
+    background-position: 200% 0;
+  }
+}
+
+@keyframes spin-angle {
+  to {
+    --angle: 360deg;
+  }
+}
+
+@keyframes field-twinkle {
+  to {
+    opacity: 0.8;
+  }
+}
+
+@keyframes breathe {
+  0%,
+  100% {
+    opacity: 0.65;
+    transform: scale(0.94);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.06);
+  }
+}
+
+@keyframes ember-rise {
+  0% {
+    opacity: 0;
+    transform: translate(0, 0);
+  }
+  15% {
+    opacity: 0.9;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(calc(var(--s) * 2.5rem - 1.25rem), -22rem);
+  }
+}
+
+@keyframes cta-pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgb(251 191 36 / 60%);
+  }
+  70%,
+  100% {
+    box-shadow: 0 0 0 1.1rem rgb(251 191 36 / 0%);
+  }
+}
+
+@keyframes logo-float {
+  50% {
+    transform: translate(0.2rem, -0.3rem) rotate(-3deg);
+  }
+}
+
+@media (forced-colors: active) {
+  .word-spark {
+    background: none;
+    color: inherit;
+    -webkit-text-fill-color: currentColor;
+  }
+}
+
+@media print {
+  .garland,
+  .finale-embers,
+  .finale-mandala,
+  .spark {
+    display: none;
+  }
+}
