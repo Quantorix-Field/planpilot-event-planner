@@ -8,6 +8,7 @@ import "./shell.css";
 import "./plans.css";
 import "./plan-detail.css";
 import "./planning.css";
+import "./home.css";
 
 const container = document.getElementById("root");
 if (!container) throw new Error("Root element #root was not found.");
