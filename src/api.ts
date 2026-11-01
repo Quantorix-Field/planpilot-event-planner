@@ -20,6 +20,14 @@ export class ApiError extends Error {
   }
 }
 
+/** Thrown when the visitor stops the request. This is not an error to show. */
+export class RequestCancelled extends Error {
+  constructor() {
+    super("The request was stopped.");
+    this.name = "RequestCancelled";
+  }
+}
+
 const errorBodySchema = z.object({
   error: z.string(),
   fieldErrors: z.record(z.array(z.string()).optional()).optional(),
@@ -30,16 +38,19 @@ export async function requestPlan(
   input: PlanRequest,
   fetchImpl: typeof fetch = fetch,
   timeoutMs = 65_000,
+  signal?: AbortSignal,
 ): Promise<PlanResponse> {
+  const timeout = AbortSignal.timeout(timeoutMs);
   let response: Response;
   try {
     response = await fetchImpl("/api/plan", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(input),
-      signal: AbortSignal.timeout(timeoutMs),
+      signal: signal ? AbortSignal.any([signal, timeout]) : timeout,
     });
   } catch {
+    if (signal?.aborted) throw new RequestCancelled();
     throw new ApiError(
       "Couldn't reach the server. Check your connection and try again.",
       0,
@@ -52,6 +63,7 @@ export async function requestPlan(
   } catch {
     data = undefined;
   }
+  if (signal?.aborted) throw new RequestCancelled();
 
   if (!response.ok) {
     const parsed = errorBodySchema.safeParse(data);
