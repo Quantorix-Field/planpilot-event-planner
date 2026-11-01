@@ -37,6 +37,7 @@ const SAVED = {
         vendors: [
           { name: "Venue", priority: "must-book", estimatedCostInr: 450_000, tip: "Visit on a weekday." },
           { name: "Photographer", priority: "recommended", estimatedCostInr: 90_000, tip: "Ask for a sample album." },
+                    { name: "Caterer", priority: "must-book", estimatedCostInr: 525_000, tip: "Book a tasting." },
           { name: "DJ", priority: "optional", estimatedCostInr: 40_000, tip: "Share a no-play list." },
         ],
         ideas: [
