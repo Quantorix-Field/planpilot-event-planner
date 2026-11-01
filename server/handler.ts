@@ -1,5 +1,6 @@
 import { finalizePlan } from "../shared/finalize.js";
-import { planRequestSchema } from "../shared/schema.js";
+import { planRequestSchema, todayIst } from "../shared/schema.js";
+import { generatePlan, parseModelList } from "./fallback.js";
 import { generateAiPlan, PlanGenerationError } from "./gemini.js";
 import { createRateLimiter, type RateLimiter } from "./rateLimit.js";
 
@@ -29,7 +30,7 @@ function clientKey(request: Request): string {
   return forwarded || request.headers.get("x-real-ip") || "unknown";
 }
 
-/** Validates the request, calls Gemini through our proxy, and returns the finalized plan. */
+/** Validates the request, asks Gemini (with backups and a starter plan) and returns the finalized plan. */
 export async function handlePlanRequest(
   request: Request,
   deps: HandlerDeps = {},
@@ -84,11 +85,13 @@ export async function handlePlanRequest(
   }
 
   try {
-    const aiPlan = await generate(parsed.data, {
-      apiKey,
-      ...(env.GEMINI_MODEL ? { model: env.GEMINI_MODEL } : {}),
-    });
-    return json(finalizePlan(aiPlan, parsed.data), 200);
+        const today = todayIst();
+    const result = await generatePlan(
+      parsed.data,
+      { apiKey, models: parseModelList(env.GEMINI_MODEL, env.GEMINI_FALLBACK_MODELS), generate },
+      today,
+    );
+    return json(finalizePlan(result.plan, parsed.data, today, result.source), 200);
   } catch (error) {
     if (error instanceof PlanGenerationError) {
       return json({ error: error.message }, error.status);
