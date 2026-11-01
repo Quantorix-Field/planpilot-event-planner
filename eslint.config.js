@@ -18,7 +18,11 @@ export default tseslint.config(
       ...reactHooks.configs.recommended.rules,
       eqeqeq: ["error", "always"],
       "no-console": ["error", { allow: ["error", "warn"] }],
-      "prefer-const": "error",
+            "prefer-const": "error",
+      "@typescript-eslint/no-unused-vars": [
+        "error",
+        { argsIgnorePattern: "^_", varsIgnorePattern: "^_", ignoreRestSiblings: true },
+      ],
     },
   },
   {
@@ -38,7 +42,14 @@ export default tseslint.config(
     files: ["tests/**/*.{ts,tsx}"],
     rules: {
       "@typescript-eslint/no-non-null-assertion": "off",
-      "@typescript-eslint/no-explicit-any": "off",
+            "@typescript-eslint/no-explicit-any": "off",
+      // Test fakes use plain objects as stores and delete keys by name.
+      "@typescript-eslint/no-dynamic-delete": "off",
     },
+  },
+  {
+    // This pattern deliberately matches control characters: it rejects them in link targets.
+    files: ["src/routes.ts"],
+    rules: { "no-control-regex": "off" },
   },
 );
