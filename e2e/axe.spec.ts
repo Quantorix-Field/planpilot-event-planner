@@ -100,7 +100,9 @@ for (const [name, path] of PAGES) {
     const problems = watchForProblems(page);
     await seedPlan(page);
     await page.goto(path);
-    await page.locator("main").waitFor();
+        await page.locator("main").waitFor();
+    // The plan page must be audited with the plan on screen, not while it loads.
+    if (path.startsWith("/plans/")) await page.getByRole("tablist").waitFor();
 
     await expectNoViolations(page);
 
@@ -114,7 +116,8 @@ for (const [name, path] of PAGES) {
 
 test("every tab of a plan passes axe", async ({ page }) => {
   await seedPlan(page);
-  await page.goto(`/plans/${PLAN_ID}`);
+    await page.goto(`/plans/${PLAN_ID}`);
+  await page.getByRole("tablist").waitFor();
   const tabs = page.getByRole("tab");
   const count = await tabs.count();
   expect(count).toBeGreaterThan(0);
