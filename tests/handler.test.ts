@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { POST } from "../api/plan";
 import { handlePlanRequest, type HandlerDeps } from "../server/handler";
-import { PlanGenerationError } from "../server/gemini";
+import { DEFAULT_MODEL, PlanGenerationError } from "../server/gemini";
 import { createRateLimiter } from "../server/rateLimit";
 import { planResponseSchema } from "../shared/schema";
 import { makeAiPlan, makeRequest } from "./fixtures";
@@ -87,22 +87,47 @@ describe("handlePlanRequest: success and errors", () => {
     const plan = planResponseSchema.parse(await response.json());
     expect(plan.budget.reduce((sum, row) => sum + row.amountInr, 0)).toBe(77_777);
     expect(state.request).toMatchObject({ city: "Delhi" });
-    expect(state.config).toEqual({ apiKey: "K", model: "m1" });
+        expect(state.config).toMatchObject({ apiKey: "K", model: "m1" });
   });
 
-  it("omits the model when none is configured", async () => {
+    it("uses the default model when none is configured", async () => {
     const { deps, state } = setup();
     await handlePlanRequest(post(makeRequest()), { ...deps, env: { GEMINI_API_KEY: "K" } });
-    expect(state.config).toEqual({ apiKey: "K" });
+    expect(state.config).toMatchObject({ apiKey: "K", model: DEFAULT_MODEL });
   });
 
-  it("passes through safe errors from the AI client", async () => {
+  it("passes through errors about the request itself", async () => {
     const { deps } = setup(async () => {
-      throw new PlanGenerationError("The AI took too long.", 504);
+      throw new PlanGenerationError("Try rewording your notes.", 422);
     });
     const response = await handlePlanRequest(post(makeRequest()), deps);
-    expect(response.status).toBe(504);
-    expect((await body(response)).error).toBe("The AI took too long.");
+    expect(response.status).toBe(422);
+    expect((await body(response)).error).toBe("Try rewording your notes.");
+  });
+
+  it("tries the backup models from GEMINI_FALLBACK_MODELS in order", async () => {
+    const asked: string[] = [];
+    const { deps } = setup(async (_request, config) => {
+      asked.push(config.model ?? "");
+      if (config.model !== "backup-1") throw new PlanGenerationError("down", 503);
+      return makeAiPlan();
+    });
+    const env = { GEMINI_API_KEY: "K", GEMINI_MODEL: "main", GEMINI_FALLBACK_MODELS: "backup-1,backup-2" };
+    const response = await handlePlanRequest(post(makeRequest()), { ...deps, env });
+    expect(response.status).toBe(200);
+    expect(asked).toEqual(["main", "backup-1"]);
+    expect("source" in (await body(response))).toBe(false);
+  });
+
+  it("returns a clearly marked starter plan when the AI is down", async () => {
+    const { deps } = setup(async () => {
+      throw new PlanGenerationError("down", 502);
+    });
+    const response = await handlePlanRequest(post(makeRequest({ budgetInr: 77_777 })), deps);
+    expect(response.status).toBe(200);
+    const plan = planResponseSchema.parse(await response.json());
+    expect(plan.source).toBe("starter");
+    expect(plan.budget.reduce((sum, row) => sum + row.amountInr, 0)).toBe(77_777);
   });
 
   it("hides the details of unexpected errors", async () => {
