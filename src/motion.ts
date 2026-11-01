@@ -33,3 +33,12 @@ export function applyMotion(pref: MotionPref, root: AttributeTarget = document.d
   if (pref === "off") root.setAttribute("data-motion", "off");
   else root.removeAttribute("data-motion");
 }
+
+/** True when animation may play: the visitor has not asked for less motion or paused it. */
+export function motionAllowed(
+  root: Pick<Element, "getAttribute"> = document.documentElement,
+  matchMedia: (query: string) => { matches: boolean } = (query) => window.matchMedia(query),
+): boolean {
+  if (root.getAttribute("data-motion") === "off") return false;
+  return !matchMedia("(prefers-reduced-motion: reduce)").matches;
+}
