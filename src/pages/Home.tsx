@@ -1,6 +1,8 @@
-import type { CSSProperties } from "react";
+import { Fragment, type CSSProperties } from "react";
 import { EVENT_TYPES, type EventType } from "../../shared/schema";
 import { DonutChart } from "../components/DonutChart";
+import { Garland } from "../components/Garland";
+import { Mandala } from "../components/Mandala";
 import { formatInr } from "../format";
 import {
   EVENT_BLURBS,
@@ -12,11 +14,30 @@ import {
 } from "../homeContent";
 import { Link, usePageMeta } from "../router";
 
-const PETALS = [0, 1, 2, 3, 4, 5];
+const PETALS = [0, 1, 2, 3, 4, 5, 6, 7];
 const LAMPS = [0, 1, 2, 3, 4];
+const TITLE = "Every celebration begins with a spark.".split(" ");
+/** Spark positions as [left %, top %, size]. */
+const SPARKS = [
+  [8, 12, 1],
+  [22, 70, 0.7],
+  [34, 22, 0.9],
+  [46, 84, 0.6],
+  [58, 10, 1.1],
+  [70, 62, 0.8],
+  [82, 26, 1],
+  [92, 78, 0.7],
+  [14, 46, 0.6],
+  [64, 40, 0.5],
+  [90, 50, 0.9],
+  [40, 52, 0.5],
+] as const;
 
 /** Hands a number to the stylesheet, which uses it for animation timing. */
 const order = (index: number) => ({ "--i": index }) as CSSProperties;
+
+const spark = ([x, y, size]: readonly [number, number, number], index: number) =>
+  ({ "--x": `${x}%`, "--y": `${y}%`, "--s": size, "--i": index }) as CSSProperties;
 
 function EventIcon({ type }: { type: EventType }) {
   return (
@@ -56,7 +77,16 @@ function Hero() {
       <div className="container-wide hero-grid">
         <div className="hero-copy">
           <p className="eyebrow">An AI event planner made for India</p>
-          <h1 id="hero-title">Every celebration begins with a spark.</h1>
+          <h1 id="hero-title">
+            {TITLE.map((word, index) => (
+              <Fragment key={index}>
+                {index > 0 ? " " : null}
+                <span className={index === TITLE.length - 1 ? "word word-spark" : "word"} style={order(index)}>
+                  {word}
+                </span>
+              </Fragment>
+            ))}
+          </h1>
           <p className="hero-sub">
             Tell us a date, a number and a dream. PlanPilot builds the rest.
           </p>
@@ -75,8 +105,15 @@ function Hero() {
             <li>Ideas for your vibe</li>
           </ul>
         </div>
-        <div className="hero-art" aria-hidden="true">
+                <div className="hero-art" aria-hidden="true">
+          <Mandala className="hero-mandala" />
           <span className="hero-glow" />
+          <svg className="hero-trail" viewBox="0 0 240 200" focusable="false">
+            <path d="M4 190 C40 170 60 186 96 150 S130 118 150 104" />
+          </svg>
+          {SPARKS.map((item, index) => (
+            <span key={index} className="spark" style={spark(item, index)} />
+          ))}
           <img
             className="hero-plane"
             src="/logo-plane-white.png"
@@ -228,7 +265,13 @@ function MadeForIndia() {
 
 function Finale() {
   return (
-    <section className="finale on-dark" aria-labelledby="finale-title">
+        <section className="finale on-dark" aria-labelledby="finale-title">
+      <Mandala className="finale-mandala" />
+      <div className="finale-embers" aria-hidden="true">
+        {SPARKS.map((item, index) => (
+          <span key={index} className="ember" style={spark(item, index)} />
+        ))}
+      </div>
       <div className="container-wide finale-inner">
         <ul className="lamps" aria-hidden="true">
           {LAMPS.map((index) => (
@@ -256,7 +299,7 @@ export default function Home() {
   return (
     <>
       <Hero />
-      <div className="garland" aria-hidden="true" />
+      <Garland />
       <HowItWorks />
       <ExamplePlan />
       <EventTypes />
