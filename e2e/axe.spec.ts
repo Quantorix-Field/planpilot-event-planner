@@ -79,17 +79,19 @@ function watchForProblems(page: Page): string[] {
   return problems;
 }
 
-async function expectNoViolations(page: Page): Promise<void> {
+/** Fails with a one-line summary, so the CI annotation title names the rule and element. */
+async function expectNoViolations(page: Page, where = "page"): Promise<void> {
   const results = await new AxeBuilder({ page })
     .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"])
     .analyze();
-  const found = results.violations.map(
-    (violation) =>
-      `${violation.id} (${violation.impact ?? "n/a"}): ${violation.nodes
-        .map((node) => node.target.join(" "))
-        .join(" | ")}`,
-  );
-  expect(found).toEqual([]);
+  if (results.violations.length === 0) return;
+  const found = results.violations.map((violation) => {
+    const nodes = violation.nodes.slice(0, 3);
+    const where3 = nodes.map((node) => node.target.join(" ")).join(" | ");
+    const why = (nodes[0]?.any[0]?.message ?? nodes[0]?.all[0]?.message ?? "").slice(0, 160);
+    return `${violation.id} (${violation.impact ?? "n/a"}) at ${where3} - ${why}`;
+  });
+  throw new Error(`AXE on ${where}: ${found.join(" ;; ")}`);
 }
 
 for (const [name, path] of PAGES) {
@@ -116,8 +118,9 @@ test("every tab of a plan passes axe", async ({ page }) => {
   const count = await tabs.count();
   expect(count).toBeGreaterThan(0);
   for (let index = 0; index < count; index += 1) {
+        const label = (await tabs.nth(index).innerText()).trim();
     await tabs.nth(index).click();
-    await expectNoViolations(page);
+    await expectNoViolations(page, `tab "${label}"`);
   }
 });
 
@@ -126,8 +129,8 @@ test("the delete dialog passes axe and closes with Escape", async ({ page }) => 
   await page.goto("/plans");
   await page.getByRole("button", { name: /^Delete/ }).first().click();
   const dialog = page.getByRole("dialog");
-  await expect(dialog).toBeVisible();
-  await expectNoViolations(page);
+   await expect(dialog).toBeVisible();
+  await expectNoViolations(page, "delete dialog");
   await page.keyboard.press("Escape");
   await expect(dialog).toBeHidden();
 });
