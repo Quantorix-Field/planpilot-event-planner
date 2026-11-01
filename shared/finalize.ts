@@ -94,15 +94,17 @@ export function sortVendors(vendors: AiPlan["vendors"]): AiPlan["vendors"] {
 /** Combine the user's input with the AI's plan into the final, validated response. */
 export function finalizePlan(
   ai: AiPlan,
-  request: PlanRequest,
+    request: PlanRequest,
   today: string = todayIst(),
+  source: "ai" | "starter" = "ai",
 ): PlanResponse {
   const daysUntilEvent = daysBetween(today, request.eventDate);
   if (daysUntilEvent < 0) {
     throw new Error("The event date is in the past.");
   }
   return planResponseSchema.parse({
-    summary: ai.summary,
+        summary: ai.summary,
+    ...(source === "starter" ? { source } : {}),
     daysUntilEvent,
     budget: normalizeBudget(ai.budget, request.budgetInr),
     timeline: buildTimeline(ai.timeline, request.eventDate, today),
