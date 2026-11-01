@@ -87,7 +87,7 @@ export type LinkProps = Omit<AnchorHTMLAttributes<HTMLAnchorElement>, "href"> & 
 };
 
 /** A normal link that changes page without a reload. Ctrl/Cmd-click still opens a new tab. */
-export function Link({ to, replace, onClick, ...rest }: LinkProps) {
+export function Link({ to, replace, onClick, children, ...rest }: LinkProps) {
   const href = isSafeInternalPath(to) ? to : "/";
 
   function handleClick(event: MouseEvent<HTMLAnchorElement>) {
@@ -99,7 +99,11 @@ export function Link({ to, replace, onClick, ...rest }: LinkProps) {
     navigate(href, { replace });
   }
 
-  return <a {...rest} href={href} onClick={handleClick} />;
+    return (
+    <a {...rest} href={href} onClick={handleClick}>
+      {children}
+    </a>
+  );
 }
 
 /** A Link that sets aria-current="page" when it points at the page being shown. */
