@@ -107,6 +107,8 @@ export type AiPlan = z.infer<typeof aiPlanSchema>;
 /** What the API returns to the browser after our code finalizes the AI output. */
 export const planResponseSchema = z.object({
   summary: z.string(),
+  /** Present only when the plan came from our built-in starter, not from the AI. */
+  source: z.literal("starter").optional(),
   daysUntilEvent: z.number().int().min(0),
   budget: z.array(
     z.object({
