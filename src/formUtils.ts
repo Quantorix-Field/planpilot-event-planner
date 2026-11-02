@@ -1,3 +1,4 @@
+import { pickAllowed, STYLES, traditionsFor } from "../shared/formOptions";
 import {
   planRequestSchema,
   type EventType,
@@ -10,6 +11,9 @@ export interface FormValues {
   guestCount: string;
   budgetInr: string;
   city: string;
+  traditions: string[];
+  food: string;
+  styles: string[];
   vibe: string;
 }
 
@@ -23,8 +27,24 @@ export const FIELD_ORDER: readonly FieldName[] = [
   "guestCount",
   "budgetInr",
   "city",
+  "traditions",
+  "food",
+  "styles",
   "vibe",
 ];
+
+/** The form has two steps: the first five fields are step 1, everything else is step 2. */
+export type FormStep = 1 | 2;
+const STEP_ONE_FIELDS: readonly FieldName[] = FIELD_ORDER.slice(0, 5);
+
+export function fieldStep(field: FieldName): FormStep {
+  return STEP_ONE_FIELDS.includes(field) ? 1 : 2;
+}
+
+/** The first field, in form order, that has an error message. */
+export function firstErrorField(errors: FormErrors): FieldName | undefined {
+  return FIELD_ORDER.find((field) => errors[field]);
+}
 
 export const EMPTY_VALUES: FormValues = {
   eventType: "",
@@ -32,6 +52,9 @@ export const EMPTY_VALUES: FormValues = {
   guestCount: "",
   budgetInr: "",
   city: "",
+  traditions: [],
+  food: "",
+  styles: [],
   vibe: "",
 };
 
@@ -42,6 +65,9 @@ export function valuesFromRequest(request: PlanRequest): FormValues {
     guestCount: String(request.guestCount),
     budgetInr: String(request.budgetInr),
     city: request.city,
+    traditions: [...(request.traditions ?? [])],
+    food: request.food ?? "",
+    styles: [...(request.styles ?? [])],
     vibe: request.vibe,
   };
 }
@@ -61,6 +87,9 @@ export type ParseResult =
 
 /** Turns the raw form strings into a validated request, or one message per bad field. */
 export function parseForm(values: FormValues): ParseResult {
+  // Traditions depend on the event type, so a choice left over from another type is dropped.
+  const traditions = pickAllowed(values.traditions, traditionsFor(values.eventType));
+  const styles = pickAllowed(values.styles, STYLES);
   const result = planRequestSchema.safeParse({
     eventType: values.eventType === "" ? undefined : values.eventType,
     eventDate: values.eventDate,
@@ -68,6 +97,9 @@ export function parseForm(values: FormValues): ParseResult {
     budgetInr: toNumber(values.budgetInr),
     city: values.city,
     vibe: values.vibe,
+    ...(traditions.length > 0 ? { traditions } : {}),
+    ...(values.food !== "" ? { food: values.food } : {}),
+    ...(styles.length > 0 ? { styles } : {}),
   });
   if (result.success) return { ok: true, data: result.data };
 
