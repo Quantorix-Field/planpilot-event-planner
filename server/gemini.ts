@@ -36,7 +36,7 @@ Rules:
 - vendors: 6 to 10 vendor types for this event. Use must-book for anything with limited availability. estimatedCostInr is a realistic estimate for the city and guest count. tip is one practical booking or negotiation tip.
 - ideas: 4 to 6 ideas tailored to the notes, city, season and event type. Each has a short title and a one or two sentence description.
 - Honour "traditions" (ceremonies or customs to include in the timeline and ideas), "foodPreference" (catering and vendor choices) and "styles" (decor and ideas). An empty list or "no preference" means free choice.
-- Plain text only: no markdown and no emojis.
+- Plain text only: no markdown and no emojis. Keep estimates inside the total budget.`;
 
 const str = { type: "STRING" } as const;
 
