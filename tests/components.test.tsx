@@ -24,7 +24,7 @@ describe("PlanForm markup", () => {
       expect(html).toContain(`id="${id}"`);
     }
     expect(html).toContain("<legend>Event type</legend>");
-    expect(count(html, /type="radio"/g)).toBe(3);
+    expect(count(html, /name="eventType"/g)).toBe(3);
     expect(html).toContain("Community event");
   });
 
