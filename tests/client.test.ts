@@ -156,7 +156,10 @@ describe("form parsing", () => {
     eventDate: "2099-01-01",
     guestCount: "40",
     budgetInr: "80000",
-    city: " Pune ",
+        city: " Pune ",
+    traditions: [],
+    food: "",
+    styles: [],
     vibe: "",
   };
 
@@ -205,7 +208,10 @@ describe("form parsing", () => {
       eventDate: "2099-12-12",
       guestCount: "150",
       budgetInr: "1500000",
-      city: "Jaipur",
+            city: "Jaipur",
+      traditions: [],
+      food: "",
+      styles: [],
       vibe: "v",
     });
   });
