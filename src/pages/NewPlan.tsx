@@ -43,6 +43,7 @@ export default function NewPlan() {
   const [pendingRequest, setPendingRequest] = useState<PlanRequest | null>(null);
   const [unsaved, setUnsaved] = useState<Draft | null>(null);
   const [unsavedChecked, setUnsavedChecked] = useState<string[]>([]);
+  const [editSignal, setEditSignal] = useState(0);
 
   // Leaving the page cancels a request that is still running.
   useEffect(() => () => abortRef.current?.abort(), []);
@@ -133,9 +134,8 @@ export default function NewPlan() {
   }
 
   function handleEditDetails() {
-    const field = document.getElementById("eventDate");
-    field?.scrollIntoView({ block: "center" });
-    field?.focus();
+        // The form may be on its second step, so it moves itself back and focuses the date.
+    setEditSignal((signal) => signal + 1);
   }
 
   return (
@@ -163,6 +163,7 @@ export default function NewPlan() {
           submitLabel={editing ? "Redraft my plan" : undefined}
           busy={busy}
           serverErrors={serverErrors}
+          focusSignal={editSignal}
           onSubmit={handleSubmit}
         />
       </section>
