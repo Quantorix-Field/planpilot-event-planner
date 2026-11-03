@@ -138,3 +138,42 @@ test("the delete dialog passes axe and closes with Escape", async ({ page }) => 
   await page.keyboard.press("Escape");
   await expect(dialog).toBeHidden();
 });
+
+/** Fills the first step with a valid wedding. */
+async function fillBasics(page: Page): Promise<void> {
+  await page.getByLabel("Wedding", { exact: true }).check();
+  await page.getByLabel("Event date").fill("2099-12-12");
+  await page.getByLabel("Number of guests").fill("150");
+  await page.getByLabel(/Total budget/).fill("1500000");
+  await page.getByLabel("City", { exact: true }).fill("Jaipur");
+}
+
+test("both form steps pass axe, and the chips and Back button work", async ({ page }) => {
+  const problems = watchForProblems(page);
+  await page.goto("/plan");
+  await page.locator("main").waitFor();
+
+  // An empty first step shows its errors and stays on step 1.
+  await page.getByRole("button", { name: /^Next/ }).click();
+  await expect(page.getByRole("heading", { name: /Step 1 of 2/ })).toBeVisible();
+  await expectNoViolations(page, "form step 1 with errors");
+
+  // A valid first step moves to step 2 and puts focus on its heading.
+  await fillBasics(page);
+  await page.getByRole("button", { name: /^Next/ }).click();
+  await expect(page.getByRole("heading", { name: /Step 2 of 2/ })).toBeFocused();
+
+  await page.getByLabel("Haldi").check();
+  await page.getByLabel("Jain").check();
+  for (const style of ["Traditional", "Modern", "Royal"]) {
+    await page.getByLabel(style, { exact: true }).check();
+  }
+  await expect(page.getByLabel("Eco-friendly")).toBeDisabled();
+  await expectNoViolations(page, "form step 2");
+
+  // Back keeps what was typed.
+  await page.getByRole("button", { name: "Back to basics" }).click();
+  await expect(page.getByRole("heading", { name: /Step 1 of 2/ })).toBeFocused();
+  await expect(page.getByLabel("City", { exact: true })).toHaveValue("Jaipur");
+  expect(problems).toEqual([]);
+});
