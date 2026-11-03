@@ -144,6 +144,78 @@ main {
   outline-offset: 2px;
 }
 
+/* ---------- Two-step form ---------- */
+.form-grid[hidden] {
+  display: none;
+}
+
+.form-steps {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0 0 1rem;
+  padding: 0;
+  list-style: none;
+}
+
+.form-steps li {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.35rem 0.9rem 0.35rem 0.4rem;
+  font-weight: 600;
+  color: var(--ink);
+  background: var(--indigo-soft);
+  border-radius: 999px;
+}
+
+.form-steps li[aria-current="step"] {
+  color: #fff;
+  background: var(--night-700);
+}
+
+.form-step-num {
+  display: inline-grid;
+  place-items: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  font-size: 0.9rem;
+  color: var(--night-900);
+  background: var(--marigold-light);
+  border-radius: 50%;
+}
+
+.step-heading {
+  margin: 0;
+  font-size: 1.15rem;
+  color: var(--night-900);
+}
+
+.step-heading:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.chips .choice span {
+  padding: 0.4rem 1rem;
+}
+
+.choice input:disabled {
+  cursor: not-allowed;
+}
+
+.choice input:disabled + span {
+  color: var(--muted);
+  background: var(--cream-deep);
+  border-style: dashed;
+}
+
 .alert {
   margin-top: 1rem;
   padding: 0.75rem 1rem;
