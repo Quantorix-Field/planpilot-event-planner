@@ -1,4 +1,5 @@
 import {
+  useCallback,
   useEffect,
   useRef,
   useState,
@@ -7,30 +8,43 @@ import {
   type ReactNode,
 } from "react";
 import {
+  FOOD_PREFERENCES,
+  MAX_STYLES,
+  MAX_TRADITIONS,
+  STYLES,
+  pickAllowed,
+  toggleChoice,
+  traditionsFor,
+} from "../../shared/formOptions";
+import {
   EVENT_TYPES,
   EVENT_TYPE_LABELS,
-    todayIst,
+  todayIst,
   type EventType,
   type PlanRequest,
 } from "../../shared/schema";
 import {
   EMPTY_VALUES,
-  FIELD_ORDER,
+  fieldStep,
+  firstErrorField,
   parseForm,
   valuesFromRequest,
   type FieldName,
   type FormErrors,
+  type FormStep,
   type FormValues,
 } from "../formUtils";
 
 interface PlanFormProps {
-    initial: PlanRequest | null;
+  initial: PlanRequest | null;
   /** Event type to preselect on a blank form (used by "/plan?type=wedding"). */
   initialType?: EventType;
   /** Text of the submit button. */
   submitLabel?: string;
   busy: boolean;
   serverErrors: FormErrors;
+  /** Raise this number to bring the visitor back to the first field. */
+  focusSignal?: number;
   onSubmit: (request: PlanRequest) => void;
 }
 
@@ -75,26 +89,82 @@ function Field({ name, label, hint, error, className, children }: FieldProps) {
   );
 }
 
+interface ChipGroupProps {
+  name: "traditions" | "food" | "styles";
+  legend: string;
+  hint: string;
+  error: string | undefined;
+  children: ReactNode;
+}
+
+/** A fieldset of chips: the legend names the group and the hint and error are read with it. */
+function ChipGroup({ name, legend, hint, error, children }: ChipGroupProps) {
+  const describedBy = [`${name}-hint`, error ? `${name}-error` : ""].filter(Boolean).join(" ");
+  return (
+    <fieldset className="field full" aria-describedby={describedBy}>
+      <legend>{legend}</legend>
+      <p id={`${name}-hint`} className="field-hint">
+        {hint}
+      </p>
+      <div className="chips">{children}</div>
+      {error ? (
+        <p id={`${name}-error`} className="field-error">
+          {error}
+        </p>
+      ) : null}
+    </fieldset>
+  );
+}
+
+const STEP_TITLES: Record<FormStep, string> = { 1: "Basics", 2: "Style and traditions" };
+
+type FocusTarget = FieldName | "heading";
+
 export function PlanForm({
   initial,
   initialType,
   submitLabel = "Create my plan",
   busy,
   serverErrors,
+  focusSignal = 0,
   onSubmit,
 }: PlanFormProps) {
   const [values, setValues] = useState<FormValues>(
     initial ? valuesFromRequest(initial) : { ...EMPTY_VALUES, eventType: initialType ?? "" },
   );
   const [errors, setErrors] = useState<FormErrors>({});
+  const [step, setStep] = useState<FormStep>(1);
+  const [focusTick, setFocusTick] = useState(0);
   const refs = useRef<Partial<Record<FieldName, HTMLElement | null>>>({});
+  const headings = useRef<Partial<Record<FormStep, HTMLElement | null>>>({});
+  const pendingFocus = useRef<FocusTarget | null>(null);
+
+  /** Shows a step and puts focus on a field (or the step heading) once it is on screen. */
+  const moveTo = useCallback((nextStep: FormStep, target: FocusTarget) => {
+    pendingFocus.current = target;
+    setStep(nextStep);
+    setFocusTick((tick) => tick + 1);
+  }, []);
+
+  useEffect(() => {
+    const target = pendingFocus.current;
+    if (target === null) return;
+    pendingFocus.current = null;
+    const element = target === "heading" ? headings.current[step] : refs.current[target];
+    element?.focus();
+  }, [step, focusTick]);
 
   useEffect(() => {
     setErrors(serverErrors);
-  }, [serverErrors]);
+    const first = firstErrorField(serverErrors);
+    if (first) moveTo(fieldStep(first), first);
+  }, [serverErrors, moveTo]);
 
-  function setField<K extends FieldName>(name: K, value: FormValues[K]) {
-    setValues((previous) => ({ ...previous, [name]: value }));
+  useEffect(() => {
+    if (focusSignal > 0) moveTo(1, "eventDate");
+  }, [focusSignal, moveTo]);
+
+  function clearError(name: FieldName) {
     setErrors((previous) => {
       if (!previous[name]) return previous;
       const { [name]: _removed, ...rest } = previous;
@@ -102,24 +172,64 @@ export function PlanForm({
     });
   }
 
+  function setField<K extends FieldName>(name: K, value: FormValues[K]) {
+    setValues((previous) => {
+      const next = { ...previous, [name]: value };
+      // Traditions belong to one event type, so changing the type drops the ones that no longer fit.
+      return name === "eventType"
+        ? { ...next, traditions: pickAllowed(next.traditions, traditionsFor(next.eventType)) }
+        : next;
+    });
+    clearError(name);
+  }
+
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const result = parseForm(values);
     if (!result.ok) {
       setErrors(result.errors);
-      const first = FIELD_ORDER.find((field) => result.errors[field]);
-      if (first) refs.current[first]?.focus();
+      const first = firstErrorField(result.errors);
+      if (first) moveTo(fieldStep(first), first);
       return;
     }
     setErrors({});
+    if (step === 1) {
+      moveTo(2, "heading");
+      return;
+    }
     onSubmit(result.data);
   }
 
   const typeErrorId = errors.eventType ? "eventType-error" : undefined;
+  const typeTraditions = traditionsFor(values.eventType);
 
   return (
     <form onSubmit={handleSubmit} noValidate>
-      <div className="form-grid">
+      <ol className="form-steps no-print" aria-label="Form progress">
+        {([1, 2] as const).map((number) => (
+          <li key={number} aria-current={step === number ? "step" : undefined}>
+            <span className="form-step-num" aria-hidden="true">
+              {number}
+            </span>
+            <span>
+              <span className="sr-only">Step {number} of 2: </span>
+              {STEP_TITLES[number]}
+            </span>
+          </li>
+        ))}
+      </ol>
+
+      <div className="form-grid" hidden={step !== 1}>
+        <h3
+          className="step-heading full"
+          tabIndex={-1}
+          ref={(element: HTMLHeadingElement | null) => {
+            headings.current[1] = element;
+          }}
+        >
+          Step 1 of 2: Basics
+        </h3>
+
         <fieldset className="field full" aria-describedby={typeErrorId}>
           <legend>Event type</legend>
           <div className="choices">
@@ -222,10 +332,113 @@ export function PlanForm({
           )}
         </Field>
 
+        <div className="field full">
+          <div className="btn-row">
+            <button type="submit" className="btn btn-primary">
+              Next: style and traditions
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div className="form-grid" hidden={step !== 2}>
+        <h3
+          className="step-heading full"
+          tabIndex={-1}
+          ref={(element: HTMLHeadingElement | null) => {
+            headings.current[2] = element;
+          }}
+        >
+          Step 2 of 2: Style and traditions
+        </h3>
+
+        <ChipGroup
+          name="traditions"
+          legend="Traditions and functions (optional)"
+          hint={
+            typeTraditions.length > 0
+              ? `Pick up to ${MAX_TRADITIONS}. ${values.traditions.length} chosen.`
+              : "Choose an event type in step 1 to see the options."
+          }
+          error={errors.traditions}
+        >
+          {typeTraditions.map((option, index) => {
+            const checked = values.traditions.includes(option);
+            return (
+              <label className="choice" key={option}>
+                <input
+                  type="checkbox"
+                  name="traditions"
+                  value={option}
+                  checked={checked}
+                  disabled={!checked && values.traditions.length >= MAX_TRADITIONS}
+                  onChange={() =>
+                    setField("traditions", toggleChoice(values.traditions, option, MAX_TRADITIONS))
+                  }
+                  ref={(element: HTMLInputElement | null) => {
+                    if (index === 0) refs.current.traditions = element;
+                  }}
+                />
+                <span>{option}</span>
+              </label>
+            );
+          })}
+        </ChipGroup>
+
+        <ChipGroup
+          name="food"
+          legend="Food preference (optional)"
+          hint="Shapes the catering plan and vendor choices."
+          error={errors.food}
+        >
+          {["", ...FOOD_PREFERENCES].map((option, index) => (
+            <label className="choice" key={option || "none"}>
+              <input
+                type="radio"
+                name="food"
+                value={option}
+                checked={values.food === option}
+                onChange={() => setField("food", option)}
+                ref={(element: HTMLInputElement | null) => {
+                  if (index === 0) refs.current.food = element;
+                }}
+              />
+              <span>{option || "No preference"}</span>
+            </label>
+          ))}
+        </ChipGroup>
+
+        <ChipGroup
+          name="styles"
+          legend="Style and mood (optional)"
+          hint={`Pick up to ${MAX_STYLES}. ${values.styles.length} chosen.`}
+          error={errors.styles}
+        >
+          {STYLES.map((option, index) => {
+            const checked = values.styles.includes(option);
+            return (
+              <label className="choice" key={option}>
+                <input
+                  type="checkbox"
+                  name="styles"
+                  value={option}
+                  checked={checked}
+                  disabled={!checked && values.styles.length >= MAX_STYLES}
+                  onChange={() => setField("styles", toggleChoice(values.styles, option, MAX_STYLES))}
+                  ref={(element: HTMLInputElement | null) => {
+                    if (index === 0) refs.current.styles = element;
+                  }}
+                />
+                <span>{option}</span>
+              </label>
+            );
+          })}
+        </ChipGroup>
+
         <Field
           name="vibe"
           label="Anything special? (optional)"
-          hint="Theme, traditions, food preferences, must-haves. Up to 500 characters."
+          hint="Theme, must-haves, family wishes. Up to 500 characters."
           error={errors.vibe}
           className="full"
         >
@@ -244,6 +457,14 @@ export function PlanForm({
 
         <div className="field full">
           <div className="btn-row">
+            <button
+              type="button"
+              className="btn btn-secondary"
+              disabled={busy}
+              onClick={() => moveTo(1, "heading")}
+            >
+              Back to basics
+            </button>
             <button id="plan-submit" type="submit" className="btn btn-primary" disabled={busy}>
               {busy ? "Planning…" : submitLabel}
             </button>
